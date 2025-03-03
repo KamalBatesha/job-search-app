@@ -8,14 +8,15 @@ const userSchema = new mongoose.Schema({
   firstName: { type: String, required: true },
   lastName: { type: String, required: true },
   email: { type: String, unique: true, required: true },
-  password: { type: String,
-     required: function(){
-    return this.provider == providerTypes.system
+  password: { 
+    type: String,
+    required: function(){
+      return this.provider == providerTypes.system;
+    },
+    minLength: 8,
+    trim: true,
   },
-  minLength: 8,
-  trim: true,
- },
-  provider: { type: String, enum:Object.values(providerTypes), required: true,default:providerTypes.system },
+  provider: { type: String, enum: Object.values(providerTypes), required: true, default: providerTypes.system },
   gender: { type: String, enum: Object.values(genderTypes), required: true },
   DOB: { 
     type: Date, 
@@ -30,7 +31,7 @@ const userSchema = new mongoose.Schema({
     }
   },
   mobileNumber: { type: String, required: true },
-  role: { type: String, enum:Object.values(rolesTypes), required: true, default:rolesTypes.user },
+  role: { type: String, enum: Object.values(rolesTypes), required: true, default: rolesTypes.user },
   isConfirmed: { type: Boolean, default: false },
   deletedAt: { type: Date },
   bannedAt: { type: Date },
@@ -45,25 +46,16 @@ const userSchema = new mongoose.Schema({
       expiresIn: Date,
     },
   ],
-},{
-  virtuals:{
-    userName: {
-      get: function () {
-        return `${this.firstName} ${this.lastName}`;
-      },
-    },
-  }
-},{
+}, {
+  timestamps: true,   // ✅ Now timestamps will work
   toObject: { virtuals: true },
-  toJSON: { virtuals: true },
-  timestamps: true
-},
+  toJSON: { virtuals: true }
+});
 
-);
-
-// userSchema.virtual('userName').get(function() {
-//   return `${this.firstName} ${this.lastName}`;
-// });
+// Virtual Field
+userSchema.virtual("userName").get(function () {
+  return `${this.firstName} ${this.lastName}`;
+});
 
 userSchema.pre("save", async function (next) {
   if(this.isNew ||this.isModified("password")){
@@ -83,7 +75,7 @@ userSchema.pre("save", async function (next) {
   next();
 });
 // Middleware for updateOne
-userSchema.pre("updateOne", async function (next) {
+userSchema.pre(["updateOne", "findOneAndUpdate"], async function (next) {
   const update = this.getUpdate();
 
   if (update.password) {

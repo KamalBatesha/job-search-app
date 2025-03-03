@@ -19,7 +19,7 @@ export const updateSchema = {
       lastName: joi.string(),
       gender: joi.string().valid(...Object.values(genderTypes)),
       DOB: joi.date().max(eighteenYearsAgo), // Must be greater than 18 years ago
-      mobileNumber: joi.string(),
+      mobileNumber: generalRuls.phone,
     })
     .required(),
   headers: generalRuls.headers.required(),
@@ -50,4 +50,10 @@ export const uploadPicSchema =(fieldname)=>{
 
 export const deletPicSchema = {
   headers: generalRuls.headers.required(),
+};
+export const deletUserSchema = {
+  headers: generalRuls.headers.required(),
+  params: joi.object({
+    id: generalRuls.id.required(),
+  }),
 };

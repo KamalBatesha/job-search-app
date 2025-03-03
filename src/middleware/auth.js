@@ -81,3 +81,53 @@ export const authorization = (accessRoles = []) => {
     next();
   });
 };
+
+export const decodedTokenQl = async ( { authorization, tokenType } ) => {
+  if (!authorization) {
+    throw new Error("No authorization provided", { cause: 400 });
+  }
+
+  const [prefix, token] = authorization.split(" ");
+  if (!prefix || !token) {
+    throw new Error("No token provided", { cause: 400 });
+  }
+
+  let REFRESH_SIGNATURE = undefined;
+  let ACESS_SIGNATURE = undefined;
+  if (prefix === roles.admin) {
+    REFRESH_SIGNATURE = process.env.REFRESH_SIGNATURE_TOKEN_ADMIN;
+    ACESS_SIGNATURE = process.env.ACESS_SIGNATURE_TOKEN_ADMIN;
+  } else if (prefix === roles.user) {
+    REFRESH_SIGNATURE = process.env.REFRESH_SIGNATURE_TOKEN_USER;
+    ACESS_SIGNATURE = process.env.ACESS_SIGNATURE_TOKEN_USER;
+  } else {
+    throw new Error("Invalid token prefix", { cause: 401 });
+  }
+
+  const decoded = await verifyToken({
+    token,
+    SIGNATURE:
+      tokenType == tokenTypes.acess ? ACESS_SIGNATURE : REFRESH_SIGNATURE,
+  });
+
+  if (!decoded?.id) {
+    throw new Error("Invalid token", { cause: 401 });
+  }
+
+  const user = await UserModel.findById(decoded.id);
+  if (!user) {
+    throw new Error("User not found", { cause: 404 });
+  }
+
+  if (
+    user?.changeCredentialTime  &&
+    user.changeCredentialTime.getTime() / 1000 >= decoded.iat
+  ) {
+    throw new Error("Token expired", { cause: 401 });
+  }
+
+  if (user?.deletedAt) {
+    throw new Error("User deleted", { cause: 404 });
+  }
+  return user;
+};

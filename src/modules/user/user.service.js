@@ -103,3 +103,13 @@ export const deleteCoverPic = asyncHandler(async (req, res, next) => {
  await UserModel.updateOne({_id:req.user._id},{$unset:{coverPic:0}})
  return res.status(200).json({ message: "done" });
 });
+
+//----------------------------deleteUser----------------------------------------------------
+export const deleteUser = asyncHandler(async (req, res, next) => {
+  if(req.user._id!=req.params.id && req.user.role!=rolesTypes.admin){
+    return next(new AppError("you don't have permission to delete this user" ,401 ));
+  }
+  await UserModel.updateOne({_id:req.params.id},{$set:{deletedAt:new Date()}})
+  return res.status(200).json({ message: "done" });
+ });
+ 

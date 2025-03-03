@@ -20,3 +20,11 @@ export const validation = (schema) => {
     }
   )
 };
+
+export const validationQraph = ({ schema, data }) => {
+  let { error } = schema.validate(data, { abortEarly: false });
+  if (error) {
+    throw new AppError(error, 400);
+  }
+};
+

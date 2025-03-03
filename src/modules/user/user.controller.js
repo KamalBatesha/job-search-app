@@ -19,6 +19,7 @@ userRouter.patch("/uploadProfilePic",multerHost(generalRuls.image,`you can only 
 userRouter.patch("/uploadCoverPic",multerHost(generalRuls.image,`you can only upload images of type ${generalRuls.image.join(" or ")}`).single("coverPic"),validation(UV.uploadPicSchema("coverPic")),authentication,US.uploadCoverPic)
 userRouter.delete("/deleteProfilePic",validation(UV.deletPicSchema),authentication,US.deleteProfilePic)
 userRouter.delete("/deleteCoverPic",validation(UV.deletPicSchema),authentication,US.deleteCoverPic)
+userRouter.delete("/deleteUser/:id",validation(UV.deletUserSchema),authentication,US.deleteUser)
 
 
 export default userRouter;

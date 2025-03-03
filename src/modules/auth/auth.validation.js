@@ -14,7 +14,7 @@ export const signUpSchema = {
     DOB: joi.date()
         .max(eighteenYearsAgo) // Must be greater than 18 years ago
         .required(),
-    mobileNumber: joi.string().required(),
+    mobileNumber: generalRuls.phone.required(),
     provider: joi.string().valid(...Object.values(providerTypes))
     })
     .required(),

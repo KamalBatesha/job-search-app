@@ -7,6 +7,10 @@ import cron from"node-cron";
 import { UserModel } from "./DB/models/user.model.js";
 import authRouter from "./modules/auth/auth.controller.js";
 import userRouter from "./modules/user/user.controller.js";
+import { createHandler } from "graphql-http/lib/use/express";
+import { schema } from "./modules/graph.schema.js";
+import companyRouter from "./modules/company/company.controller.js";
+import jobRouter from "./modules/job/job.controller.js";
 
 
 const limiter = rateLimit({
@@ -35,6 +39,10 @@ const bootstrap = (app, express) => {
   // application routes
   app.use("/auth",authRouter)
   app.use("/user",userRouter)
+  app.use("/company",companyRouter)
+  app.use("/job",jobRouter)
+  app.use("/adminDashboard", createHandler({ schema }));
+
 
 
   // routes for unhandelered requests

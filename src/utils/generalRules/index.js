@@ -1,3 +1,4 @@
+import { GraphQLScalarType } from "graphql";
 import joi from "joi";
 import { Types } from "mongoose";
 
@@ -10,6 +11,7 @@ export const generalRuls = {
   email: joi.string().email({ tlds: { allow: true } }),
   password: joi.string().min(8),
   id: joi.string().custom(customId),
+  phone:joi.string().regex(/^01[0-2,5]{1}[0-9]{8}$/),
   headers: joi.object({
     authorization: joi.string().required(),
     "cache-control": joi.string(),
@@ -51,3 +53,19 @@ export const providerTypes={
   google:"google",
   system:"system"
 }
+export const DateScalar = new GraphQLScalarType({
+  name: "Date",
+  description: "Date custom scalar type",
+  serialize(value) {
+    return value instanceof Date ? value.toISOString() : null;
+  },
+  parseValue(value) {
+    return new Date(value);
+  },
+  parseLiteral(ast) {
+    if (ast.kind === Kind.STRING) {
+      return new Date(ast.value);
+    }
+    return null;
+  },
+});

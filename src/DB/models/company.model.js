@@ -22,6 +22,12 @@ import mongoose from "mongoose";
     deletedAt: { type: Date },
     legalAttachment: { secure_url: String, public_id: String },
     approvedByAdmin: { type: Boolean, default: false },
-  }, { timestamps: true });
+  }, { timestamps: true ,toJSON:{virtuals:true},toObject:{virtuals:true}});
+
+  companySchema.virtual("jobs",{
+    ref:"Job",
+    localField:"_id",
+    foreignField:"companyId"
+  })
 
 export const CompanyModel = mongoose.model.Company || mongoose.model("Company", companySchema);
